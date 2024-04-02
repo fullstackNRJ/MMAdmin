@@ -2,7 +2,7 @@ This is a new [**React Native**](https://reactnative.dev) project, bootstrapped 
 
 # Getting Started
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+> **Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
 
 ## Step 1: Start the Metro Server
 
@@ -46,34 +46,45 @@ If everything is set up _correctly_, you should see your new app running in your
 
 This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
 
-## Step 3: Modifying your App
+### Step 3: Setup Local, Dev, Prod etc environment, builds and flavour
 
-Now that you have successfully run the app, let's modify it.
+- The way it works in android is by defining builTypes and ProductFlavour. BuildTypes is essentially debug and release bundle. Whereas ProductFlavour has two dimensions.
+- One dimension is you environment like local, dev, qa, test, prod etc. and other is optional but useful which is app flavour. Suppose you want to share codebase for riders and drivers app inside the same android app codebase. You can enable flavours and write conditional code which gets build and compiled based on it. - It is also useful in hiding features for one kind of customers.
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
+That being said, to setup buildFlavour we need to follow these steps:
 
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
+- Define your environment files like .env.local, .env.dev, .env.prod files with keys
+- Update app/build.gradle file with following code
 
-## Congratulations! :tada:
+```
+project.ext.envConfigFiles = [
+        localdebug:".env.local",
+        localrelease :".env.local",
+        devdebug: ".env.dev",
+        devrelease: ".env.dev",
+        qadebug:'.env.qa',
+        qarelease:'.env.qa',
+        proddebug:'.env.prod',
+        prodrelease:'.env.prod',
+]
 
-You've successfully run and modified your React Native App. :partying_face:
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
+```
 
-### Now what?
+Note: Important thing here is to match the buildFlavour name with the correct .env. file.
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
+- Next, add the following line in the same file in defaultConfig block
 
-# Troubleshooting
+```
+ defaultConfig {
+        resValue "string", "build_config_package", "com.mmadmin"
+ }
+```
 
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+- Now, you can access your variables like Config.XYZ.
+  - You can also access them build.gradle file ex. `project.env.get("VERSION_CODE").toInteger()`
+  - in android files ex. `URL url = new URL(BuildConfig.API_URL);`
+  - in ios files ex. `// import header
+#import "ReactNativeConfig.h"
+// then read individual key like:
+NSString *apiUrl = [ReactNativeConfig envFor:@"API_URL"];`

@@ -2,6 +2,19 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
+project.ext.envConfigFiles = [
+        localdebug:".env.local",
+        localrelease :".env.local",
+        devdebug: ".env.dev",
+        devrelease: ".env.dev",
+        qadebug:'.env.qa',
+        qarelease:'.env.qa',
+        proddebug:'.env.prod',
+        prodrelease:'.env.prod',
+]
+
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
+
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -69,6 +82,9 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'org.webkit:android-jsc:+'
 
+def versionBuild = project.hasProperty('BUILD_NUMBER') ? "+" + project.findProperty('BUILD_NUMBER').toString() : "";
+
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -76,11 +92,12 @@ android {
 
     namespace "com.mmadmin"
     defaultConfig {
+        resValue "string", "build_config_package", "com.mmadmin"
         applicationId "com.mmadmin"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode project.env.get("VERSION_CODE").toInteger()
+        versionName project.env.get("VERSION_NAME")
     }
     signingConfigs {
         debug {
@@ -102,6 +119,43 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+
+    flavorDimensions "default"
+    productFlavors {
+        local {
+            resValue "string", "app_name", "MMAdmin Debug"
+            applicationIdSuffix '.debug'
+            versionNameSuffix "-DEBUG"
+            minSdkVersion rootProject.ext.minSdkVersion
+            targetSdkVersion rootProject.ext.targetSdkVersion
+           
+        }
+        dev {
+            resValue "string", "app_name", "MMAdmin Dev"
+            applicationIdSuffix '.dev'
+            versionNameSuffix "-DEV"+versionBuild
+            minSdkVersion rootProject.ext.minSdkVersion
+            applicationId "com.reactnativeproject.stage"
+            targetSdkVersion rootProject.ext.targetSdkVersion
+           
+        }
+        qa {
+            resValue "string", "app_name", "MMAdmin Qa"
+            applicationIdSuffix '.qa'
+            versionNameSuffix "-QA"+versionBuild
+            minSdkVersion rootProject.ext.minSdkVersion
+            applicationId "com.reactnativeproject.stage"
+            targetSdkVersion rootProject.ext.targetSdkVersion
+           
+        }
+        prod {
+           resValue "string", "app_name", "MMAdmin"
+            minSdkVersion rootProject.ext.minSdkVersion
+            applicationId "com.reactnativeproject.prod"
+            targetSdkVersion rootProject.ext.targetSdkVersion
+           
+        }
+    }
 }
 
 dependencies {
@@ -115,5 +169,7 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
