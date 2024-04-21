@@ -1,8 +1,8 @@
 import React from 'react';
 import {Text} from 'react-native';
-
+import ReminderComponent from '../components/Reminders';
 const Reminders = () => {
-  return <Text>Reminders</Text>;
+  return <ReminderComponent />;
 };
 
 export default Reminders;

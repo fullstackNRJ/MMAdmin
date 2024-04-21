@@ -19,6 +19,7 @@ import {
 
 import RootStack from './navigation/root';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -57,7 +58,11 @@ function App(): React.JSX.Element {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
-  return <RootStack />;
+  return (
+    <GestureHandlerRootView>
+      <RootStack />
+    </GestureHandlerRootView>
+  );
 }
 
 const styles = StyleSheet.create({
