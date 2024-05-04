@@ -64,12 +64,39 @@ function SettingsStackScreen() {
 }
 
 const Tab = createBottomTabNavigator();
+//customize bottom bar
+const TabIcon = ({name, focused, color, size}) => {
+  let iconName;
+
+  /* if (route.name === 'Home') {
+    iconName = focused
+      ? 'ios-information-circle'
+      : 'ios-information-circle-outline';
+  } else if (route.name === 'Settings') {
+    iconName = focused ? 'ios-list' : 'ios-list-outline';
+  } */
+
+  // You can return any component that you like here!
+  return <Ionicons name={name} size={size} color={color} />;
+};
 
 export default function RootStack() {
   return (
     <NavigationContainer>
-      <Tab.Navigator screenOptions={{headerShown: false}}>
-        <Tab.Screen name="Tab_Home" component={HomeStackScreen} />
+      <Tab.Navigator
+        screenOptions={{
+          headerShown: false,
+          tabBarShowLabel: false,
+          tabBarActiveTintColor: 'red',
+          tabBarInactiveTintColor: 'black',
+          tabBarActiveBackgroundColor: 'black',
+          tabBarInactiveBackgroundColor: 'red',
+        }}>
+        <Tab.Screen
+          name="Tab_Home"
+          options={{tabBarIcon: ({focused}) => <Text>Home</Text>}}
+          component={HomeStackScreen}
+        />
         <Tab.Screen name="Tab_Settings" component={SettingsStackScreen} />
       </Tab.Navigator>
     </NavigationContainer>
